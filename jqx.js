@@ -47,7 +47,7 @@
         return dom
     }
 
-    window.$ = query => {
+    this.$ = query => {
         return typeof(query) == str?
             query[0] == "<"?(t=>{
                 let e = doc.createElement("p");
@@ -55,10 +55,12 @@
                 return fromNative(e)})():
                 fromNative(doc.querySelector(query)):
             typeof(query) == "object"?fromNative(query):
+            doc.querySelector("body")? //ここ$(function)の実装
+                query():
                 document.addEventListener("DOMContentLoaded",query)
     }
 
-    window.$$ = query => {
+    this.$$ = query => {
         let ret = [];
         doc.querySelectorAll(query).forEach(e=>
             ret.push(fromNative(e))
