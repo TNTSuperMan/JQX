@@ -54,7 +54,8 @@
                 e.outerHTML = query;
                 return fromNative(e)})():
                 fromNative(doc.querySelector(query)):
-            fromNative(query);
+            typeof(query) == "object"?fromNative(query):
+                document.addEventListener("DOMContentLoaded",query)
     }
 
     window.$$ = query => {
