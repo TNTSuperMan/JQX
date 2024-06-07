@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JQXSample</title>
+</head>
+<body>
+    <input type="text">
+    <a></a>
+    <script src="jqx.min.js"></script>
+    <script>
+        $("a").text = $.ver;
+        $("input").on("input",e=>{
+            $("a").text = $("input").text;
+        })
+    </script>
+</body>
+</html>
