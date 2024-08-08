@@ -1,70 +1,36 @@
-(e=>{
-    let def = Object.defineProperty;
-    let doc = document;
-    let str = "string"
-    let fromNative = elm => {
-        if(!elm) return;
-        let dom = {
-            e:elm,
-            on: (name, callback, option) => 
-                elm.addEventListener(name,callback,option)??dom,
-            off: (name, callback, option) =>
-                elm.removeEventListener(name,callback,option)??dom,
-            remove: e=>elm.remove(),
-            append: e=>
-                (elm.append(typeof(e) == str?(e=>{
-                    let nte = doc.createElement("p");
-                    nte.outerHTML = e;
-                    return nte;
-                })():e.e),dom),
-            next: e=>fromNative(e.nextElementSibling)
+let $=e=>{
+    let doc = document,
+        gen=t=>{
+            let base = t
+            let f = t[0]
+            base.remove=e=>f.remove()
+            base.on=(e,z,o)=>f.addEventListener(e,z,o)
+            base.off=(e,z,o)=>f.removeEventListener(e,z,o)
+            base.append=c=>f.appendChild(c)
+            base.addClass=e=>f.classList.add(e)
+            base.removeClass=e=>f.classList.remove(e)
+            base.show=e=>f.style.display=""
+            base.hide=e=>f.style.display="none"
+            let def = (e,get,set) => Object.defineProperty(base,e,{get:z=>get,set:set})
+            def("text",f.textContent,e=>f.textContent=e)
+            def("html",f.innerHTML,e=>f.innerHTML=e)
+            def("val",f.value,e=>f.value=e)
+            def("style",f.style,e=>f.style=e)
+            return base
         }
-        let defjqx = (prop,get,set) => def(dom,prop,{get:get,set:set})
-        defjqx("html",
-            e=>e.innerHTML,
-            html=>elm.innerHTML = html
-        )
-        defjqx("text",
-            t=>elm.innerText,
-            text=>elm.innerText = text
-        )
-        defjqx("val",
-            t=>elm.value,
-            val=>elm.value = val
-        )
-        defjqx("style",
-            t=>elm.style,
-            style=>elm.style = style
-        )
-        defjqx("class",
-            e=>elm.classList,
-            e=>elm.classList = e
-        )
-        defjqx("id",
-            e=>elm.id,
-            e=>elm.id = e
-        )
-        return dom
-    }
+    if(e.call){
+        if(doc.querySelector("body")){
+            e()
+        }else{
+            doc.addEventListener("DOMContentLoaded",e)
+        }
+    }else{
+        if(/<.+>.*/.test(e)){
 
-    this.$ = query => {
-        return typeof(query) == str?
-            query[0] == "<"?(t=>{
-                let e = doc.createElement("p");
-                e.outerHTML = query;
-                return fromNative(e)})():
-                fromNative(doc.querySelector(query)):
-            typeof(query) == "object"?fromNative(query):
-            doc.querySelector("body")? //ここ$(function)の実装
-                query():
-                document.addEventListener("DOMContentLoaded",query)
+        }else if(e.trim){
+            return gen(doc.querySelectorAll(e))
+        }else{
+            return gen(e)
+        }
     }
-
-    this.$$ = query => {
-        let ret = [];
-        doc.querySelectorAll(query).forEach(e=>
-            ret.push(fromNative(e))
-        )
-        return ret;
-    }
-})()
+}

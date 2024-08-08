@@ -9,11 +9,11 @@
 <body>
     <input type="text">
     <a></a>
-    <script src="jqx.js"></script>
+    <script src="jqx.min.js"></script>
     <script>
         $("a").text = $.ver;
         $("input").on("input",e=>{
-            $("a").text = $("input").text;
+            $("a").text = $("input").val;
         })
     </script>
 </body>
