@@ -1,9 +1,7 @@
 ## $
 - \$(selector: String): JQXObject(from document.querySelector)
-- \$(html: String): JQXObject(from document.createElement)
 - \$(dom: HTMLElement): JQXObject(from argument)
-## $$
-- \$$(selector: String): Array[JQXObject](from document.querySelectorAll)
+- \$(data: Object): Proxy
 ## JQXObject
 #### Functions
 - JQXObject.on(name: String, callback: Function): JQXObject(this)
@@ -12,8 +10,8 @@
 - JQXObject.append(HTML: String): JQXObject(this)
 - JQXObject.next(): JQXObject(nextElementSibling)
 #### Properties
-- JQXObject.html: String
-- JQXObject.text: String
-- JQXObject.style: CSSStyleDeclaration
-- JQXObject.class: DOMTokenList
-- JQXObject.id: String
+- JQXObject.html: Function()
+- JQXObject.text: Function()
+- JQXObject.style: Function(CSSStyleDeclaration)
+- JQXObject.class: Function(DOMTokenList)
+- JQXObject.id: Function()
