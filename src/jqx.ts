@@ -1,7 +1,7 @@
-import {record, setThen} from "./proxy"
-export let jqx = (element: Element | null) => {
+import { React } from "./proxy"
+export let JQX = (element: HTMLElement | null) => {
     if(element){
-        return {
+        return Object.defineProperties({
             on(name: keyof ElementEventMap,
                 callback: ( this: Element, ev: Event ) => any){
                 element.addEventListener(name, callback)
@@ -10,27 +10,34 @@ export let jqx = (element: Element | null) => {
                 callback: ( this: Element, ev:Event ) => any){
                 element.removeEventListener(name, callback)
             },
-            text(callback: () => string){
-                record()
-                element.textContent = callback()
-                setThen(()=>element.textContent = callback())
+            style: new Proxy(element.style,{
+                set(target, prop, value, receiver){
+                    let set = Reflect.set(target,prop,value(),receiver)
+                    if(set){
+                        React(value,e=>
+                            Reflect.set(target,prop,e,receiver))
+                    }
+                    return set
+                }
+            })
+        },{
+            text:{
+                get:()=>element.textContent,
+                set:v=>React(v, e=>element.textContent=e)
             },
-            html(callback: () => string){
-                record()
-                element.innerHTML = callback()
-                setThen(()=>element.innerHTML = callback())
+            html:{
+                get:()=>element.textContent,
+                set:v=>React(v, e=>element.innerHTML=e)
             },
-            id(callback: () => string){
-                record()
-                element.id = callback()
-                setThen(()=>element.id = callback())
+            id:{
+                get:()=>element.textContent,
+                set:v=>React(v, e=>element.id=e)
             },
-            class(callback: () => string){
-                record()
-                element.className = callback()
-                setThen(()=>element.className = callback())
-            }
-        }
+            class:{
+                get:()=>element.textContent,
+                set:v=>React(v, e=>element.className=e)
+            },
+        })
     }else{
         return null
     }

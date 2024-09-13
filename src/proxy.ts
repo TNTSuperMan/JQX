@@ -1,28 +1,27 @@
 let proxys: Object[] = []
 let isRecording: boolean = false
-let recordData: [number,string][] = []
-let observeData: [number,string,Function][] = []
+let recordData:  [number, string | Symbol][] = []
+let observeData: [number, string | Symbol, Function][] = []
 
-export let record = () => {
-    isRecording = true
+export let React = (value:()=>any, setter:(e:any)=>any)=>{
+    while(observeData.some(e=>e[2] == setter))
+        observeData.splice(observeData.findIndex(e=>e[2] == setter),1)
+    
+    isRecording = true;
     recordData = []
-}
-
-export let setThen = (callback: Function) => {
+    setter(value());
     isRecording = false
-    recordData.forEach(e=>{
-        observeData.push([e[0],e[1],callback])
-    })
-    recordData = []
+    recordData.forEach(e=>
+        observeData.push([e[0],e[1],
+            ()=>setter(value())]))
 }
 
-export let proxy = (obj: Object) => {
+export let JQXProxy = (obj: Object) => {
     let idx = proxys.length
     let proxy = new Proxy(obj,{
         get(target, prop, receiver){
             if(isRecording){
-                recordData.push([idx, 
-                    typeof prop == "string" ? prop : prop.description])
+                recordData.push([idx, prop])
             }
             return Reflect.get(target, prop, receiver)
         },
