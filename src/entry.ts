@@ -7,8 +7,8 @@ Object.defineProperty(window,"$",{get:()=>(arg: any)=>{
         return JQX(arg)
     }else if(typeof arg == "object"){
         return JQXProxy(arg)
-    }else if(typeof arg == "function"){
-        if(document.readyState == "loading"){
+    }else if((typeof arg)[0] == "f"){
+        if(document.readyState[0] == "l"){
             return window.addEventListener("DOMContentLoaded",arg)
         }else{
             return arg()

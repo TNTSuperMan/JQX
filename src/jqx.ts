@@ -26,15 +26,15 @@ export let JQX = (element: HTMLElement | null) => {
                 set:v=>React(v, e=>element.textContent=e)
             },
             html:{
-                get:()=>element.textContent,
+                get:()=>element.innerHTML,
                 set:v=>React(v, e=>element.innerHTML=e)
             },
             id:{
-                get:()=>element.textContent,
+                get:()=>element.id,
                 set:v=>React(v, e=>element.id=e)
             },
             class:{
-                get:()=>element.textContent,
+                get:()=>element.className,
                 set:v=>React(v, e=>element.className=e)
             },
         })
