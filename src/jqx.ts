@@ -1,4 +1,9 @@
 import { React } from "./proxy"
+export let ReactSym = Symbol()
+const ID_TEXT  = 0;
+const ID_ID    = 1;
+const ID_CLASS = 2;
+const ID_STYLE = 3;
 export let JQX = (element: HTMLElement | null) => {
     if(element){
         return Object.defineProperties({
@@ -15,7 +20,8 @@ export let JQX = (element: HTMLElement | null) => {
                     let set = Reflect.set(target,prop,value(),receiver)
                     if(set){
                         React(value,e=>
-                            Reflect.set(target,prop,e,receiver))
+                            Reflect.set(target,prop,e,receiver),
+                            element, ID_STYLE)
                     }
                     return set
                 }
@@ -23,20 +29,42 @@ export let JQX = (element: HTMLElement | null) => {
         },{
             text:{
                 get:()=>element.textContent,
-                set:v=>React(v, e=>element.textContent=e)
+                set:v=>React(v, e=>element.textContent=e, element, ID_TEXT)
             },
             html:{
                 get:()=>element.innerHTML,
-                set:v=>React(v, e=>element.innerHTML=e)
+                set:v=>React(v, e=>element.innerHTML=e, element, ID_TEXT)
             },
             id:{
                 get:()=>element.id,
-                set:v=>React(v, e=>element.id=e)
+                set:v=>React(v, e=>element.id=e, element, ID_ID)
             },
             class:{
                 get:()=>element.className,
-                set:v=>React(v, e=>element.className=e)
+                set:v=>React(v, e=>element.className=e, element, ID_CLASS)
             },
+            _:{
+                get:()=>{
+                    if(element instanceof HTMLInputElement){
+                        return (s:Symbol,e:Function | string | null):any => {
+                            if(s != ReactSym){
+                                return;
+                            }else if(typeof e == "undefined"){
+                                if(s == ReactSym){
+                                    return true
+                                }
+                            }else if(typeof e == "string"){
+                                element.value = e
+                            }else{
+                                element.addEventListener("input",()=>e(element.value))
+                                element.addEventListener("change",()=>e(element.value))
+                            }
+                        }
+                    }else{
+                        return undefined
+                    }
+                }
+            }
         })
     }else{
         return null
