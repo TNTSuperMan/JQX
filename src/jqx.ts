@@ -26,36 +26,32 @@ export let JQX = (element: HTMLElement | null) => {
                     return set
                 }
             })
-        },{
-            text:{
-                get:()=>element.textContent,
-                set:v=>React(v, e=>element.textContent=e, element, ID_TEXT)
-            },
-            html:{
-                get:()=>element.innerHTML,
-                set:v=>React(v, e=>element.innerHTML=e, element, ID_TEXT)
-            },
-            id:{
-                get:()=>element.id,
-                set:v=>React(v, e=>element.id=e, element, ID_ID)
-            },
-            class:{
-                get:()=>element.className,
-                set:v=>React(v, e=>element.className=e, element, ID_CLASS)
-            },
-            _:{
+        },(()=>{
+            let map: PropertyDescriptorMap = {
+                text:{
+                    get:()=>element.textContent,
+                    set:v=>React(v, e=>element.textContent=e, element, ID_TEXT)
+                },
+                html:{
+                    get:()=>element.innerHTML,
+                    set:v=>React(v, e=>element.innerHTML=e, element, ID_TEXT)
+                },
+                id:{
+                    get:()=>element.id,
+                    set:v=>React(v, e=>element.id=e, element, ID_ID)
+                },
+                class:{
+                    get:()=>element.className,
+                    set:v=>React(v, e=>element.className=e, element, ID_CLASS)
+                }
+            }
+            map[ReactSym] = {
                 get:()=>{
                     if(element instanceof HTMLInputElement){
-                        return (s:Symbol,e:Function | string | null):any => {
-                            if(s != ReactSym){
-                                return;
-                            }else if(typeof e == "undefined"){
-                                if(s == ReactSym){
-                                    return true
-                                }
-                            }else if(typeof e == "string"){
+                        return (e:Function | string):any => {
+                            if(typeof e == "string"){
                                 element.value = e
-                            }else{
+                            }else if(typeof e == "function"){
                                 element.addEventListener("input",()=>e(element.value))
                                 element.addEventListener("change",()=>e(element.value))
                             }
@@ -65,7 +61,8 @@ export let JQX = (element: HTMLElement | null) => {
                     }
                 }
             }
-        })
+            return map
+        })())
     }else{
         return null
     }
