@@ -1,15 +1,16 @@
 import { JQX } from "./jqx"
 import { JQXProxy } from "./proxy"
+import { Setting } from "./setting"
 type Argument = 
     string | 
-    HTMLElement |
+    Element |
     object | 
     null |
     (()=>void)
-export default (arg: Argument)=>{
+const $ = (arg: Argument)=>{
     if(typeof arg == "string"){
         return JQX(document.querySelector(arg))
-    }else if(arg instanceof HTMLElement){
+    }else if(arg instanceof Element){
         return JQX(arg)
     }else if(typeof arg == "object"){
         return JQXProxy(arg)
@@ -20,6 +21,9 @@ export default (arg: Argument)=>{
             return arg()
         }
     }else{
-        return null
+        return Setting
     }
 }
+Object.defineProperty(window,"$",{get:()=>$})
+Object.defineProperty(window,"JQX",{get:()=>$})
+export default $

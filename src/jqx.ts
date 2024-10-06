@@ -1,27 +1,28 @@
 import { React } from "./proxy"
-export let ReactSym = Symbol()
+import { extendFuncs, extendProps } from "./setting";
+export const ReactSym = Symbol()
 const ID_TEXT  = 0;
 const ID_ID    = 1;
 const ID_CLASS = 2;
 const ID_STYLE = 3;
 export const JQX = (element: HTMLElement | Element | null) => {
     if(element){
-        let arr = []
+        const arr = []
         for(let i = 0;i < element.children.length;i++)
             arr.push(JQX(element.children.item(i)))
         const proto:object = {
             on(name: keyof ElementEventMap,
-                callback: ( this: Element, ev: Event ) => any){
+                callback: ( this: Element, ev: Event ) => void){
                 element.addEventListener(name, callback)
             },
             off(name: keyof ElementEventMap,
-                callback: ( this: Element, ev:Event ) => any){
+                callback: ( this: Element, ev:Event ) => void){
                 element.removeEventListener(name, callback)
             },
             style: element instanceof HTMLElement ? new Proxy(element.style,{
                 set(target, prop, value, receiver){
                     if(typeof value == "function"){
-                        let set = Reflect.set(target,prop,value(),receiver)
+                        const set = Reflect.set(target,prop,value(),receiver)
                         if(set){
                             React(value,e=>{
                                 Reflect.set(target,prop,e,receiver)
@@ -34,11 +35,14 @@ export const JQX = (element: HTMLElement | Element | null) => {
                 }
             }) : undefined
         }
-        let entry = Object.entries(proto)
+        const entry = Object.entries(proto)
+        extendFuncs.forEach(e=>
+            entry.push([e[1],e[0](element,React)])
+        )
         entry.push(...Object.entries(arr))
         return Object.defineProperties(
             Object.fromEntries(entry),(()=>{
-            let map: PropertyDescriptorMap = {
+            const map: PropertyDescriptorMap = {
                 text:{
                     get:()=>element.textContent,
                     set:v=>typeof v == "function" ?
@@ -67,7 +71,7 @@ export const JQX = (element: HTMLElement | Element | null) => {
             map[ReactSym] = {
                 get:()=>{
                     if(element instanceof HTMLInputElement){
-                        return (e:Function | string):any => {
+                        return (e:(e:string)=>void | string) => {
                             if(typeof e == "string"){
                                 element.value = e
                             }else if(typeof e == "function"){
@@ -80,6 +84,8 @@ export const JQX = (element: HTMLElement | Element | null) => {
                     }
                 }
             }
+            extendProps.forEach(e=>
+                map[e[1]] = e[0](element,React))
             return map
         })())
     }else{

@@ -1,5 +1,5 @@
 import ReactDOMVal from "./value"
-type Identity = (string | Element | number)[]
+export type Identity = (string | Element | number)[]
 type ObserveData = {
     ProxyIdx: number,
     ProxyProp: string | symbol,
