@@ -2,10 +2,10 @@ import { JQX } from "./jqx"
 import { JQXProxy } from "./proxy"
 import { Setting } from "./setting"
 type Argument = 
-    string | 
+    string  | 
     Element |
-    object | 
-    null |
+    object  | 
+    null    |
     (()=>void)
 const $ = (arg: Argument)=>{
     if(typeof arg == "string"){
@@ -26,4 +26,3 @@ const $ = (arg: Argument)=>{
 }
 Object.defineProperty(window,"$",{get:()=>$})
 Object.defineProperty(window,"JQX",{get:()=>$})
-export default $
