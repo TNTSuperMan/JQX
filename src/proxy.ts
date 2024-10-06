@@ -1,36 +1,41 @@
 import ReactDOMVal from "./value"
-type ObserveData = [number, string | Symbol, Function, ...any]
+type Identity = (string | Element | number)[]
+type ObserveData = {
+    ProxyIdx: number,
+    ProxyProp: string | symbol,
+    Set: ()=>void,
+    Identity: Identity
+}
 
-let proxys: Object[] = []
+const proxys: object[] = []
 let isRecording: boolean = false
-let recordData:  [number, string | Symbol][] = []
-let observers: ObserveData[] = []
+let recordData:  {Idx:number, Prop:string | symbol}[] = []
+const observers: ObserveData[] = []
 
-export let React = (value:()=>any, setter:(e:any)=>any, ...identity:any[]) => {
-    observers
-        .filter(e=>e.length-3 == identity.length)
-        .map((eqLenE):[boolean, ObserveData]=>[
-            eqLenE.toSpliced(0,3)
-                .map((id,i)=>id==identity[i])
-                .indexOf(false) == -1,
-            eqLenE])
-        .forEach(e=>e[0] ? observers.splice(observers.indexOf(e[1])) : 0)
-
+export const React = (value:()=>string, setter:(e:string)=>void, ...identity:Identity) => {
+    observers.map((e,i)=>[i, 
+        e.Identity.map((e,i)=>e==identity[i]).indexOf(false) == -1]
+    ).forEach((e:([number,boolean]))=>
+        e[1] ? observers.splice(e[0]) : 0)
+    
     isRecording = true;
     recordData = []
     setter(value());
     isRecording = false
     recordData.forEach(e=>
-        observers.push([e[0],e[1],
-            ()=>setter(value()), ...identity]))
+        observers.push({
+            ProxyIdx: e.Idx,
+            ProxyProp: e.Prop,
+            Set: ()=>setter(value()),
+            Identity: identity
+        }))
 }
-
-export let JQXProxy = (obj: Object) => {
-    let idx = proxys.length
-    let handler: ProxyHandler<Object> = {
+export const JQXProxy = (obj: object) => {
+    const idx = proxys.length
+    const handler: ProxyHandler<object> = {
         get(target, prop, receiver){
             if(isRecording){
-                recordData.push([idx, prop])
+                recordData.push({Idx:idx, Prop:prop})
             }
             return Reflect.get(target, prop, receiver)
         },
@@ -40,15 +45,16 @@ export let JQXProxy = (obj: Object) => {
                 (e:string)=>handler.set(target,prop,e,receiver))){
                 return true;
             }else{
-                let set = Reflect.set(target, prop, val, receiver)
+                const set = Reflect.set(target, prop, val, receiver)
                 observers.filter(
-                    e=>e[0] == idx && e[1] == prop)
-                    .forEach(e=>e[2]())
+                    e=>e.ProxyIdx == idx && 
+                    e.ProxyProp == prop)
+                    .forEach(e=>e.Set())
                 return set
             }
         }
     }
-    let proxy = new Proxy(obj,handler)
+    const proxy = new Proxy(obj,handler)
     proxys.push(proxy)
     return proxy
 }

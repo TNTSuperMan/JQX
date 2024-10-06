@@ -4,9 +4,12 @@ const ID_TEXT  = 0;
 const ID_ID    = 1;
 const ID_CLASS = 2;
 const ID_STYLE = 3;
-export let JQX = (element: HTMLElement | null) => {
+export const JQX = (element: HTMLElement | Element | null) => {
     if(element){
-        return Object.defineProperties({
+        let arr = []
+        for(let i = 0;i < element.children.length;i++)
+            arr.push(JQX(element.children.item(i)))
+        const proto:object = {
             on(name: keyof ElementEventMap,
                 callback: ( this: Element, ev: Event ) => any){
                 element.addEventListener(name, callback)
@@ -15,34 +18,50 @@ export let JQX = (element: HTMLElement | null) => {
                 callback: ( this: Element, ev:Event ) => any){
                 element.removeEventListener(name, callback)
             },
-            style: new Proxy(element.style,{
+            style: element instanceof HTMLElement ? new Proxy(element.style,{
                 set(target, prop, value, receiver){
-                    let set = Reflect.set(target,prop,value(),receiver)
-                    if(set){
-                        React(value,e=>
-                            Reflect.set(target,prop,e,receiver),
-                            element, ID_STYLE)
+                    if(typeof value == "function"){
+                        let set = Reflect.set(target,prop,value(),receiver)
+                        if(set){
+                            React(value,e=>{
+                                Reflect.set(target,prop,e,receiver)
+                            }, element, ID_STYLE)
+                        }
+                        return set
+                    }else{
+                        return Reflect.set(target,prop,value,receiver)
                     }
-                    return set
                 }
-            })
-        },(()=>{
+            }) : undefined
+        }
+        let entry = Object.entries(proto)
+        entry.push(...Object.entries(arr))
+        return Object.defineProperties(
+            Object.fromEntries(entry),(()=>{
             let map: PropertyDescriptorMap = {
                 text:{
                     get:()=>element.textContent,
-                    set:v=>React(v, e=>element.textContent=e, element, ID_TEXT)
+                    set:v=>typeof v == "function" ?
+                        React(v, e=>element.textContent=e, element, ID_TEXT) :
+                        element.textContent = v
                 },
                 html:{
                     get:()=>element.innerHTML,
-                    set:v=>React(v, e=>element.innerHTML=e, element, ID_TEXT)
+                    set:v=>typeof v == "function" ?
+                    React(v, e=>element.innerHTML=e, element, ID_TEXT) :
+                    element.innerHTML = v
                 },
                 id:{
                     get:()=>element.id,
-                    set:v=>React(v, e=>element.id=e, element, ID_ID)
+                    set:v=>typeof v == "function" ?
+                    React(v, e=>element.id=e, element, ID_ID) :
+                    element.id = v
                 },
                 class:{
                     get:()=>element.className,
-                    set:v=>React(v, e=>element.className=e, element, ID_CLASS)
+                    set:v=>typeof v == "function" ?
+                    React(v, e=>element.className=e, element, ID_CLASS) :
+                    element.className = v
                 }
             }
             map[ReactSym] = {
