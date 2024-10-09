@@ -7,7 +7,7 @@ type Argument =
     object  | 
     null    |
     (()=>void)
-const $ = (arg: Argument)=>{
+export default (arg: Argument)=>{
     if(typeof arg == "string"){
         return JQX(document.querySelector(arg))
     }else if(arg instanceof Element){
@@ -24,5 +24,3 @@ const $ = (arg: Argument)=>{
         return Setting
     }
 }
-Object.defineProperty(window,"$",{get:()=>$})
-Object.defineProperty(window,"JQX",{get:()=>$})

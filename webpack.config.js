@@ -1,10 +1,10 @@
-const path = require("path")
-module.exports = {
+import path from "node:path"
+export default {
     mode: "production",
-    entry: path.resolve(__dirname, "src", "entry.ts"),
+    entry: path.resolve(".", "src", "entries", "browser.ts"),
     output: {
-        path: path.resolve(__dirname, "dist"),
-        filename: "bundle.js"
+        path: path.resolve(".", "dist"),
+        filename: "browser.js"
     },
     resolve: {
         extensions: [".ts", ".js"]
