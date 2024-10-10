@@ -26,7 +26,7 @@ export default (arg: Argument)=>{
         }
     }else{
         return {
-            Extend
+            extend: Extend,
         };
     }
 }
