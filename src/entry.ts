@@ -27,6 +27,7 @@ export default (arg: Argument)=>{
     }else{
         return {
             extend: Extend,
+            create:(e:string) => new JQX(document.createElement(e))
         };
     }
 }
