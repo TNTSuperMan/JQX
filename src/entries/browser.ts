@@ -1,4 +1,4 @@
-import $ from "../start"
+import $ from "../entry"
 
-Object.defineProperty(window,"$",{get:()=>$})
-Object.defineProperty(window,"JQX",{get:()=>$})
+Object.defineProperty(globalThis,"$",{get:()=>$})
+Object.defineProperty(globalThis,"JQX",{get:()=>$})

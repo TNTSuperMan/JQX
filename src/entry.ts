@@ -1,6 +1,5 @@
-import { JQX } from "./jqx"
+import { JQX, Extend } from "./jqx"
 import { JQXProxy } from "./proxy"
-import { Setting } from "./setting"
 type Argument = 
     string  | 
     Element |
@@ -9,18 +8,25 @@ type Argument =
     (()=>void)
 export default (arg: Argument)=>{
     if(typeof arg == "string"){
-        return JQX(document.querySelector(arg))
+        const elm = document.querySelector(arg);
+        if(elm){
+            return new JQX(elm);
+        }else{
+            return null;
+        }
     }else if(arg instanceof Element){
-        return JQX(arg)
+        return new JQX(arg);
     }else if(typeof arg == "object"){
         return JQXProxy(arg)
     }else if(typeof arg == "function"){
         if(document.readyState[0] == "l"){
-            return window.addEventListener("DOMContentLoaded",()=>arg())
+            return window.addEventListener("DOMContentLoaded",()=>arg());
         }else{
-            return arg()
+            return arg();
         }
     }else{
-        return Setting
+        return {
+            Extend
+        };
     }
 }

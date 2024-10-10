@@ -1,94 +1,89 @@
-import { React } from "./proxy"
-import { extendFuncs, extendProps } from "./setting";
-export const ReactSym = Symbol()
+import { React } from "./proxy";
 const ID_TEXT  = 0;
 const ID_ID    = 1;
 const ID_CLASS = 2;
 const ID_STYLE = 3;
-export const JQX = (element: HTMLElement | Element | null) => {
-    if(element){
-        const arr = []
-        for(let i = 0;i < element.children.length;i++)
-            arr.push(JQX(element.children.item(i)))
-        const proto:object = {
-            on(name: keyof ElementEventMap,
-                callback: ( this: Element, ev: Event ) => void){
-                element.addEventListener(name, callback)
-            },
-            off(name: keyof ElementEventMap,
-                callback: ( this: Element, ev:Event ) => void){
-                element.removeEventListener(name, callback)
-            },
-            style: element instanceof HTMLElement ? new Proxy(element.style,{
+const updateChilds = (e:JQXBase)=>{
+    Array.prototype.splice.call(e,Infinity); //Clear
+    const children = e.element.children;
+    for(let i = 0;i < children.length;i++)
+        Array.prototype.push.call(e, new JQXBase(children[i]));
+}
+export class JQXBase {
+    element: Element;
+    style: CSSStyleDeclaration | null;
+    constructor(e:Element){
+        this.element = e;
+        if(e instanceof HTMLElement){
+            this.style = new Proxy(e.style,{
                 set(target, prop, value, receiver){
                     if(typeof value == "function"){
-                        const set = Reflect.set(target,prop,value(),receiver)
-                        if(set){
-                            React(value,e=>{
-                                Reflect.set(target,prop,e,receiver)
-                            }, element, ID_STYLE)
-                        }
-                        return set
+                        React(value,
+                            e=>Reflect.set(target,prop,e,receiver),
+                            this.Element, ID_STYLE )
                     }else{
-                        return Reflect.set(target,prop,value,receiver)
+                        return Reflect.set(target,prop,value,receiver);
                     }
                 }
-            }) : undefined
+            })
         }
-        const entry = Object.entries(proto)
-        extendFuncs.forEach(e=>
-            entry.push([e[1],e[0](element,React)])
-        )
-        entry.push(...Object.entries(arr))
-        return Object.defineProperties(
-            Object.fromEntries(entry),(()=>{
-            const map: PropertyDescriptorMap = {
-                text:{
-                    get:()=>element.textContent,
-                    set:v=>typeof v == "function" ?
-                        React(v, e=>element.textContent=e, element, ID_TEXT) :
-                        element.textContent = v
-                },
-                html:{
-                    get:()=>element.innerHTML,
-                    set:v=>typeof v == "function" ?
-                    React(v, e=>element.innerHTML=e, element, ID_TEXT) :
-                    element.innerHTML = v
-                },
-                id:{
-                    get:()=>element.id,
-                    set:v=>typeof v == "function" ?
-                    React(v, e=>element.id=e, element, ID_ID) :
-                    element.id = v
-                },
-                class:{
-                    get:()=>element.className,
-                    set:v=>typeof v == "function" ?
-                    React(v, e=>element.className=e, element, ID_CLASS) :
-                    element.className = v
-                }
-            }
-            map[ReactSym] = {
-                get:()=>{
-                    if(element instanceof HTMLInputElement){
-                        return (e:(e:string)=>void | string) => {
-                            if(typeof e == "string"){
-                                element.value = e
-                            }else if(typeof e == "function"){
-                                element.addEventListener("input",()=>e(element.value))
-                                element.addEventListener("change",()=>e(element.value))
-                            }
-                        }
-                    }else{
-                        return undefined
-                    }
-                }
-            }
-            extendProps.forEach(e=>
-                map[e[1]] = e[0](element,React))
-            return map
-        })())
-    }else{
-        return null
+        updateChilds(this);
     }
+    on( name: keyof ElementEventMap,
+        callback: (this:Element, ev:Event)=>void){
+        this.element.addEventListener(name, callback);
+    }
+    off( name: keyof ElementEventMap,
+         callback: (this:Element, ev:Event)=>void){
+        this.element.removeEventListener(name, callback);
+    }
+    get text(){return this.element.textContent}
+    set text(value){
+        if(typeof value == "function"){
+            React(value,
+                e=>{
+                    this.element.textContent = e;
+                    updateChilds(this);
+                }, this.element, ID_TEXT );
+        }else{
+            this.element.textContent = value;
+        }
+    }
+    get html(){return this.element.innerHTML}
+    set html(value){
+        if(typeof value == "function"){
+            React(value,
+                e=>{
+                    this.element.innerHTML = e;
+                    updateChilds(this);
+                }, this.element, ID_TEXT );
+        }else{
+            this.element.innerHTML = value;
+        }
+    }
+    get id(){return this.element.id}
+    set id(value){
+        if(typeof value == "function"){
+            React(value,
+                e=>this.element.id = e,
+                this.element, ID_ID );
+        }else{
+            this.element.id = value;
+        }
+    }
+    get class(){return this.element.className}
+    set class(value){
+        if(typeof value == "function"){
+            React(value,
+                e=>this.element.className = e,
+                this.element, ID_CLASS );
+        }else{
+            this.element.className = value;
+        }
+    }
+}
+export let JQX:typeof JQXBase = JQXBase;
+
+export const Extend = (createChildJQX:(base:typeof JQXBase)=>typeof JQXBase) => {
+    JQX = createChildJQX(JQX);
 }

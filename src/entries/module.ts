@@ -1,2 +1,2 @@
-import $ from "../start"
+import $ from "../entry"
 export default $
