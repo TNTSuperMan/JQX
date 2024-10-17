@@ -1,7 +1,7 @@
 import ReactDOMVal from "./value";
 export type Identity = (string | Element | number)[];
 type ObserveData = {
-    ProxyIdx: number,
+    ProxyId: symbol,
     ProxyProp: string | symbol,
     Set: ()=>void,
     Identity: Identity
@@ -9,7 +9,7 @@ type ObserveData = {
 
 const proxys: object[] = [];
 let isRecording: boolean = false;
-let recordData:  {Idx:number, Prop:string | symbol}[] = [];
+let recordData:  {Id:symbol, Prop:string | symbol}[] = [];
 const observers: ObserveData[] = [];
 
 export const React = (value:()=>string, setter:(e:string)=>void, ...identity:Identity) => {
@@ -24,18 +24,18 @@ export const React = (value:()=>string, setter:(e:string)=>void, ...identity:Ide
     isRecording = false;
     recordData.forEach(e=>
         observers.push({
-            ProxyIdx: e.Idx,
+            ProxyId: e.Id,
             ProxyProp: e.Prop,
             Set: ()=>setter(value()),
             Identity: identity
         }));
 }
 export const JQXProxy = (obj: object) => {
-    const idx = proxys.length
+    const id = Symbol();
     const handler: ProxyHandler<object> = {
         get(target, prop, receiver){
             if(isRecording)
-                recordData.push({Idx:idx, Prop:prop});
+                recordData.push({Id:id, Prop:prop});
             return Reflect.get(target, prop, receiver);
         },
         set(target, prop, val, receiver){
@@ -46,7 +46,7 @@ export const JQXProxy = (obj: object) => {
             }else{
                 const set = Reflect.set(target, prop, val, receiver);
                 observers.filter(
-                    e=>e.ProxyIdx == idx && 
+                    e=>e.ProxyId == id && 
                     e.ProxyProp == prop)
                     .forEach(e=>e.Set());
                 return set;

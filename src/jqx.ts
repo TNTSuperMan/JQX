@@ -8,7 +8,7 @@ const updateChilds = (e:JQXBase)=>{
     const children = e.element.children;
     for(let i = 0;i < children.length;i++)
         Array.prototype.push.call(e, new JQXBase(children[i]));
-}
+};
 export class JQXBase {
     element: Element;
     style: CSSStyleDeclaration | null;
@@ -20,12 +20,12 @@ export class JQXBase {
                     if(typeof value == "function"){
                         React(value,
                             e=>Reflect.set(target,prop,e,receiver),
-                            this.Element, ID_STYLE )
+                            this.Element, ID_STYLE );
                     }else{
                         return Reflect.set(target,prop,value,receiver);
                     }
                 }
-            })
+            });
         }
         updateChilds(this);
     }
@@ -37,7 +37,7 @@ export class JQXBase {
          callback: (this:Element, ev:Event)=>void){
         this.element.removeEventListener(name, callback);
     }
-    get text(){return this.element.textContent}
+    get text(){return this.element.textContent;}
     set text(value){
         if(typeof value == "function"){
             React(value,
@@ -49,7 +49,7 @@ export class JQXBase {
             this.element.textContent = value;
         }
     }
-    get html(){return this.element.innerHTML}
+    get html(){return this.element.innerHTML;}
     set html(value){
         if(typeof value == "function"){
             React(value,
@@ -61,7 +61,7 @@ export class JQXBase {
             this.element.innerHTML = value;
         }
     }
-    get id(){return this.element.id}
+    get id(){return this.element.id;}
     set id(value){
         if(typeof value == "function"){
             React(value,
@@ -71,7 +71,7 @@ export class JQXBase {
             this.element.id = value;
         }
     }
-    get class(){return this.element.className}
+    get class(){return this.element.className;}
     set class(value){
         if(typeof value == "function"){
             React(value,
@@ -81,9 +81,9 @@ export class JQXBase {
             this.element.className = value;
         }
     }
-}
+};
 export let JQX:typeof JQXBase = JQXBase;
 
 export const Extend = (createChildJQX:(base:typeof JQXBase)=>typeof JQXBase) => {
     JQX = createChildJQX(JQX);
-}
+};
