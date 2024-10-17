@@ -1,4 +1,4 @@
 import $ from "../entry"
 
-Object.defineProperty(globalThis,"$",{get:()=>$})
-Object.defineProperty(globalThis,"JQX",{get:()=>$})
+Object.defineProperty(globalThis,"$",{get:()=>$});
+Object.defineProperty(globalThis,"JQX",{get:()=>$});

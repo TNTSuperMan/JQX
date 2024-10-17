@@ -6,7 +6,7 @@ export default ( val: JQXBase | null, get:()=>string, set:(e:string)=>void)=>{
         if(elm instanceof HTMLInputElement){
             elm.addEventListener("input",()=>set(elm.value));
             elm.addEventListener("change",()=>set(elm.value));
-            React(get,e=>elm.value=e,elm,4);
+            React(get, e=>elm.value=e, elm, 4);
             return true;
         }else{
             return false;

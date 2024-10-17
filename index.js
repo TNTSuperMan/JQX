@@ -1,2 +1,2 @@
-import $ from "./dist/module"
+import $ from "./dist/esmodule"
 export default $;
