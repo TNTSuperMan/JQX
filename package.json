@@ -4,10 +4,8 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "build": "npm run build:module && npm run build:browser",
-    "lint": "eslint src",
-    "build:module": "rollup -c",
-    "build:browser": "webpack"
+    "build": "rollup -c",
+    "lint": "eslint src"
   },
   "author": "TNTSuperMan",
   "license": "MIT",
