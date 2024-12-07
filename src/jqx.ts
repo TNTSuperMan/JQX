@@ -7,7 +7,7 @@ const updateChilds = (e:JQXBase)=>{
     Array.prototype.splice.call(e,Infinity); //Clear
     const children = e.element.children;
     for(let i = 0;i < children.length;i++)
-        Array.prototype.push.call(e, new JQXBase(children[i]));
+        Array.prototype.push.call(e, new JQX(children[i]));
 };
 export class JQXBase {
     element: Element;
